@@ -7,11 +7,8 @@ export const styles = StyleSheet.create({
     alignItems: "center",
     backgroundColor: "#fff",
   },
-  text: {
-    fontSize: 30,
-    fontWeight: "900",
-    paddingBottom: 5,
-    marginBottom: 5,
-    borderBottomWidth: 1,
+  logo: {
+    width: 134,
+    height: 34,
   },
 });
