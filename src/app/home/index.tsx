@@ -1,6 +1,7 @@
 import { Image, View } from "react-native";
 
 import { Button } from "@/components/button";
+import { Filter } from "@/components/filter";
 import { Input } from "@/components/input";
 
 import { styles } from "@/app/home/styles";
@@ -15,7 +16,10 @@ export function Home() {
         <Button title="Adicionar" />
       </View>
 
-      <View style={styles.content}></View>
+      <View style={styles.content}>
+        <Filter status="done" isActive />
+        <Filter status="pending" isActive={false} />
+      </View>
     </View>
   );
 }
