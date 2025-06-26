@@ -7,6 +7,7 @@ import { Filter } from "@/components/filter";
 import { Input } from "@/components/input";
 
 import { styles } from "@/app/home/styles";
+import { Item } from "../../components/item";
 
 export function Home() {
   const filter_status: FilterStatus[] = ["done", "pending"];
@@ -30,6 +31,12 @@ export function Home() {
             <Text style={styles.clearText}>Limpar</Text>
           </TouchableOpacity>
         </View>
+
+        <Item
+          data={{ status: "done", description: "Café" }}
+          onStatus={() => console.log("troca status")}
+          onRemove={() => console.log("remover")}
+        />
       </View>
     </View>
   );
