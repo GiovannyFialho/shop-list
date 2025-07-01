@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
   Alert,
   FlatList,
@@ -11,6 +11,8 @@ import {
 
 import { FilterStatus } from "@/@types/filter-status";
 
+import { itemsStorage, type ItemStorageProps } from "@/storage/items-storage";
+
 import { Button } from "@/components/button";
 import { Filter } from "@/components/filter";
 import { Input } from "@/components/input";
@@ -18,52 +20,75 @@ import { Item } from "@/components/item";
 
 import { styles } from "@/app/home/styles";
 
-type ItemsProps = {
-  id: string;
-  status: FilterStatus;
-  description: string;
-};
-
 const filter_status: FilterStatus[] = ["done", "pending"];
 
 export function Home() {
   const [filter, setFilter] = useState<FilterStatus>("pending");
   const [description, setDescription] = useState("");
 
-  const [items, setItems] = useState<ItemsProps[]>([
-    {
-      id: "1",
-      status: "done",
-      description: "1 pacote de café",
-    },
-    {
-      id: "2",
-      status: "pending",
-      description: "3 pacotes de macarrão",
-    },
-    {
-      id: "3",
-      status: "pending",
-      description: "3 cebolas",
-    },
-  ]);
+  const [items, setItems] = useState<ItemStorageProps[]>([]);
 
-  function handleAdd() {
+  async function handleAdd() {
     if (!description.trim()) {
       Alert.alert("Adicionar", "Informe a descrição para adicionar");
     }
 
-    const newItem: ItemsProps = {
+    const newItem: ItemStorageProps = {
       id: Math.random().toString(36).substring(2),
       description,
       status: "pending",
     };
 
-    setItems((prev) => [...prev, newItem]);
+    await itemsStorage.add(newItem);
+    await itemsByStatus();
+
+    Alert.alert("Adicionado", `Adicionado ${description}`);
+
     setDescription("");
+    setFilter("pending");
 
     Keyboard.dismiss();
   }
+
+  async function itemsByStatus() {
+    try {
+      const response = await itemsStorage.getByStatus(filter);
+
+      setItems(response);
+    } catch (error) {
+      Alert.alert("Erro", "Não foi possível filtrar os itens.");
+    }
+  }
+
+  async function handleRemove(id: string) {
+    try {
+      await itemsStorage.remove(id);
+      await itemsByStatus();
+    } catch (error) {
+      Alert.alert("Remover", "Não foi possível remover");
+    }
+  }
+
+  function handleClear() {
+    Alert.alert("Limpar", "Deseja remover todos?", [
+      { text: "Não", style: "cancel" },
+      { text: "Sim", onPress: () => onClear() },
+    ]);
+  }
+
+  async function onClear() {
+    try {
+      await itemsStorage.clear();
+
+      setItems([]);
+    } catch (error) {
+      Alert.alert("Limpar", "Não foi possível remover todos os itens.");
+    }
+  }
+
+  useEffect(() => {
+    itemsByStatus();
+  }, [filter]);
 
   return (
     <View style={styles.container}>
@@ -92,7 +117,7 @@ export function Home() {
             />
           ))}
 
-          <TouchableOpacity style={styles.clearButton}>
+          <TouchableOpacity style={styles.clearButton} onPress={handleClear}>
             <Text style={styles.clearText}>Limpar</Text>
           </TouchableOpacity>
         </View>
@@ -104,7 +129,7 @@ export function Home() {
             <Item
               data={item}
               onStatus={() => console.log("troca status")}
-              onRemove={() => console.log("remover")}
+              onRemove={() => handleRemove(item.id)}
             />
           )}
           showsVerticalScrollIndicator={false}
