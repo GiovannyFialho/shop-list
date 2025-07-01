@@ -58,10 +58,25 @@ async function clear(): Promise<void> {
   }
 }
 
+async function toggleStatus(id: string): Promise<void> {
+  const items = await get();
+  const updatedItems: ItemStorageProps[] = items.map((item) =>
+    item.id === id
+      ? {
+          ...item,
+          status: item.status === "pending" ? "done" : "pending",
+        }
+      : item
+  );
+
+  await save(updatedItems);
+}
+
 export const itemsStorage = {
   get,
   getByStatus,
   add,
+  toggleStatus,
   remove,
   clear,
 };
