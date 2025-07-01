@@ -30,7 +30,7 @@ export function Home() {
 
   async function handleAdd() {
     if (!description.trim()) {
-      Alert.alert("Adicionar", "Informe a descrição para adicionar");
+      return Alert.alert("Ops!", "Informe a descrição para adicionar");
     }
 
     const newItem: ItemStorageProps = {
