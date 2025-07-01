@@ -1,4 +1,13 @@
-import { FlatList, Image, Text, TouchableOpacity, View } from "react-native";
+import { useState } from "react";
+import {
+  Alert,
+  FlatList,
+  Image,
+  Keyboard,
+  Text,
+  TouchableOpacity,
+  View,
+} from "react-native";
 
 import { FilterStatus } from "@/@types/filter-status";
 
@@ -15,9 +24,13 @@ type ItemsProps = {
   description: string;
 };
 
+const filter_status: FilterStatus[] = ["done", "pending"];
+
 export function Home() {
-  const filter_status: FilterStatus[] = ["done", "pending"];
-  const items: ItemsProps[] = [
+  const [filter, setFilter] = useState<FilterStatus>("pending");
+  const [description, setDescription] = useState("");
+
+  const [items, setItems] = useState<ItemsProps[]>([
     {
       id: "1",
       status: "done",
@@ -33,21 +46,50 @@ export function Home() {
       status: "pending",
       description: "3 cebolas",
     },
-  ];
+  ]);
+
+  function handleAdd() {
+    if (!description.trim()) {
+      Alert.alert("Adicionar", "Informe a descrição para adicionar");
+    }
+
+    const newItem: ItemsProps = {
+      id: Math.random().toString(36).substring(2),
+      description,
+      status: "pending",
+    };
+
+    setItems((prev) => [...prev, newItem]);
+    setDescription("");
+
+    Keyboard.dismiss();
+  }
 
   return (
     <View style={styles.container}>
       <Image source={require("@/assets/logo.png")} style={styles.logo} />
 
       <View style={styles.form}>
-        <Input placeholder="O que você precisa comprar?" />
-        <Button title="Adicionar" />
+        <Input
+          value={description}
+          placeholder="O que você precisa comprar?"
+          onChangeText={setDescription}
+          onSubmitEditing={handleAdd}
+          returnKeyType="send"
+        />
+
+        <Button title="Adicionar" onPress={handleAdd} />
       </View>
 
       <View style={styles.content}>
         <View style={styles.header}>
           {filter_status.map((status) => (
-            <Filter key={status} status={status} isActive />
+            <Filter
+              key={status}
+              status={status}
+              isActive={status === filter}
+              onPress={() => setFilter(status)}
+            />
           ))}
 
           <TouchableOpacity style={styles.clearButton}>
