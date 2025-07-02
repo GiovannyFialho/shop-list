@@ -10,7 +10,7 @@ export type ItemStorageProps = {
 
 const ITEMS_STORAGE_KEY = "@shop:items";
 
-async function get(): Promise<ItemStorageProps[]> {
+async function getAll(): Promise<ItemStorageProps[]> {
   try {
     const storage = await AsyncStorage.getItem(ITEMS_STORAGE_KEY);
 
@@ -21,7 +21,7 @@ async function get(): Promise<ItemStorageProps[]> {
 }
 
 async function getByStatus(status: FilterStatus): Promise<ItemStorageProps[]> {
-  const items = await get();
+  const items = await getAll();
 
   return items.filter((item) => item.status === status);
 }
@@ -35,7 +35,7 @@ async function save(items: ItemStorageProps[]): Promise<void> {
 }
 
 async function add(newItem: ItemStorageProps): Promise<ItemStorageProps[]> {
-  const items = await get();
+  const items = await getAll();
   const updatedItems = [...items, newItem];
 
   await save(updatedItems);
@@ -44,7 +44,7 @@ async function add(newItem: ItemStorageProps): Promise<ItemStorageProps[]> {
 }
 
 async function remove(id: string): Promise<void> {
-  const items = await get();
+  const items = await getAll();
   const updatedItems = items.filter((item) => item.id !== id);
 
   await save(updatedItems);
@@ -59,7 +59,7 @@ async function clear(): Promise<void> {
 }
 
 async function toggleStatus(id: string): Promise<void> {
-  const items = await get();
+  const items = await getAll();
   const updatedItems: ItemStorageProps[] = items.map((item) =>
     item.id === id
       ? {
@@ -73,7 +73,7 @@ async function toggleStatus(id: string): Promise<void> {
 }
 
 export const itemsStorage = {
-  get,
+  getAll,
   getByStatus,
   add,
   toggleStatus,
